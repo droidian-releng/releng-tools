@@ -1,4 +1,4 @@
-releng-tools [![Build Status](https://travis-ci.com/hybris-mobian-releng/releng-tools.svg?branch=master)](https://travis-ci.com/hybris-mobian-releng/releng-tools)
+releng-tools [![Build Status](https://travis-ci.com/hybris-mobian-releng/releng-tools.svg?branch=bullseye)](https://travis-ci.com/hybris-mobian-releng/releng-tools)
 ==================
 
 This package contains various tools related to hybris-mobian's release
