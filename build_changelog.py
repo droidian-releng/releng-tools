@@ -363,9 +363,11 @@ class SlimPackage:
 			# here
 			if commit.parents:
 				try:
-					last_commit = not bool(commit.parents[0].parents)
+					commit.parents[0].parents
 				except ValueError:
 					last_commit = True
+				else:
+					last_commit = False
 			else:
 				last_commit = True
 
