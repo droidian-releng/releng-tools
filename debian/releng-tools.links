@@ -1,2 +1,2 @@
-/usr/lib/releng-tools/build_changelog.sh /usr/bin/releng-build-changelog
+/usr/lib/releng-tools/build_changelog.py /usr/bin/releng-build-changelog
 /usr/lib/releng-tools/build_package.sh   /usr/bin/releng-build-package
