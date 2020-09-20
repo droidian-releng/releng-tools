@@ -1,0 +1,22 @@
+Source: releng-tools
+Maintainer: Eugenio Paolantonio (g7) <me@medesimo.eu>
+Section: misc
+Priority: optional
+Build-Depends: debhelper (>= 10),
+               dh-python,
+               python3
+Standards-Version: 4.5.0.3
+Vcs-Browser: https://github.com/hybris-mobian-releng/releng-tools
+Vcs-Git: https://github.com/hybris-mobian-releng/releng-tools.git
+
+Package: releng-tools
+Architecture: all
+Depends: ${misc:Depends},
+         ${python3:Depends},
+         python3-git,
+         git,
+         equivs,
+         devscripts
+Description: Release engineering tools for hybris-mobian
+ This package contains various tools related to hybris-mobian's
+ release engineering processes.
