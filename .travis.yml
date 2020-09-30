@@ -16,6 +16,7 @@ _debian_package_build_template: &debian_package_build_template
 
   before_install:
    - docker pull ${DOCKER_IMAGE}
+   - sudo apt-get install --yes devscripts
 
   script:
    # Store build results in /tmp/buildd-results
@@ -34,6 +35,19 @@ _debian_package_build_template: &debian_package_build_template
        -v ${PWD}:/buildd/sources \
        ${DOCKER_IMAGE} \
        /bin/sh -c "cd /buildd/sources ; apt install -y python3-git ; ./build_package.sh"
+
+  after_success:
+    - echo "Signing..."
+    - |
+      if [ -z "${GPG_STAGINGPRODUCTION_SIGNING_KEYID}" ]; then
+         echo -e "${GPG_FEATURE_SIGNING_KEY}" | gpg --import
+         _GPG_KEYID="${GPG_FEATURE_SIGNING_KEYID}"
+      else
+         echo -e "${GPG_STAGINGPRODUCTION_SIGNING_KEY}" | gpg --import
+         _GPG_KEYID="${GPG_STAGINGPRODUCTION_SIGNING_KEYID}"
+      fi
+    - cd /tmp/buildd-results
+    - debsign -k$_GPG_KEYID *.changes
 
   deploy:
     provider: releases
