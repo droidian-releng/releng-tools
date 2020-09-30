@@ -58,6 +58,7 @@ _debian_package_build_template: &debian_package_build_template
       - /tmp/buildd-results/*.dsc
       - /tmp/buildd-results/*.changes
       - /tmp/buildd-results/*.tar.*
+      - /tmp/buildd-results/*.buildinfo
     on:
       tags: true
       condition: -n $RELEASES_TOKEN
