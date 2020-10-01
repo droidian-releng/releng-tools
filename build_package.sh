@@ -96,7 +96,12 @@ case "${BUILD_TYPE}" in
 esac
 # NOTE: On Travis CI we're stuck to depth 50 unless we unshallow.
 #git fetch --unshallow
-eval ./build_changelog.py "${ARGS}"
+if [ -x ./build_changelog.py ]; then
+	build_changelog=./build_changelog.py
+else
+	build_changelog=releng-build-changelog
+fi
+eval ${build_changelog} "${ARGS}"
 
 # TODO? Build arch checks?
 
