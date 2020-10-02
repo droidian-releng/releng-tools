@@ -121,10 +121,24 @@ if [ -e "debian/source/format" ] && grep -q "quilt" debian/source/format; then
 	package_orig_version_tag="${package_orig_version/~/_}"
 	package_orig_version_tag="${package_orig_version_tag/:/%}"
 
-	git archive upstream/${package_orig_version_tag} \
-		| tar -f - --delete "debian/" --delete ".travis.yml" --ignore-failed-read \
-		| xz --compress - \
-		> ../${package_name}_${package_orig_version}.orig.tar.xz
+	# git archive doesn't support submodules, which is not ideal.
+	# Workaround this by creating a new worktree from the upstream tag,
+	# fetch submodules, then create the orig file
+	current_dir="${PWD}"
+	orig_dir=$(mktemp -d)
+
+	git worktree add ${orig_dir} upstream/${package_orig_version_tag}
+	cd ${orig_dir}
+	git submodule init
+	git submodule update
+	tar \
+		--exclude "debian" \
+		--exclude ".git" \
+		--exclude ".gitmodules" \
+		--exclude ".gitattributes" \
+		-cJf "${current_dir}/../${package_name}_${package_orig_version}.orig.tar.xz" .
+
+	cd "${current_dir}"
 
 	# Try to generate quilt patches
 	git add .
