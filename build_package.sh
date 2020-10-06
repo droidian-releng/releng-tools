@@ -103,6 +103,10 @@ eval releng-build-changelog "${ARGS}"
 package_info=$(head -n 1 debian/changelog)
 package_name=$(echo "${package_info}" | awk '{ print $1 }')
 
+# Refresh APT database
+info "Refreshing APT database"
+apt-get update
+
 # Install build dependencies
 info "Installing build dependencies"
 
