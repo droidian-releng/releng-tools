@@ -120,10 +120,9 @@ rm -f ${package_name}-build-deps_*.*
 if [ -e "debian/source/format" ] && grep -q "quilt" debian/source/format; then
 	info "Package is non-native"
 
-	package_orig_version=$(echo "${package_info}" | awk '{ print $2 }' | cut -d- -f1 | sed 's/(//')
+	package_orig_version=$(echo "${package_info}" | awk '{ print $2 }' | cut -d- -f1 | sed 's/(//' | cut -d':' -f2-)
 
 	package_orig_version_tag="${package_orig_version/~/_}"
-	package_orig_version_tag="$(echo ${package_orig_version_tag} | cut -d':' -f2-)"
 
 	# git archive doesn't support submodules, which is not ideal.
 	# Workaround this by creating a new worktree from the upstream tag,
