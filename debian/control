@@ -15,6 +15,7 @@ Depends: ${misc:Depends},
          ${python3:Depends},
          python3-git,
          git,
+         findutils,
          equivs,
          devscripts
 Description: Release engineering tools for hybris-mobian
