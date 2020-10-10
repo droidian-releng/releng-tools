@@ -164,8 +164,8 @@ if [ -e "debian/source/format" ] && grep -q "quilt" debian/source/format; then
 
 	# Copy the new directory to ${orig_dir} as we're going to build
 	# there
-	rm -rf ${orig_dir}/debian/patches
-	cp -Rav debian/patches ${orig_dir}/debian/patches
+	rm -rf ${orig_dir}/debian
+	cp -Rav debian ${orig_dir}/debian
 
 	# Finally enter in ${orig_dir}
 	cd ${orig_dir}
