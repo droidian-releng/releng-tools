@@ -117,7 +117,10 @@ rm -f ${package_name}-build-deps_*.*
 [ -z "${CI_CONFIG}" ] || rm -f "${CI_CONFIG}"
 
 # Handle non-native packages
+current_dir="${PWD}"
+non_native="no"
 if [ -e "debian/source/format" ] && grep -q "quilt" debian/source/format; then
+	non_native="yes"
 	info "Package is non-native"
 
 	package_orig_version=$(echo "${package_info}" | awk '{ print $2 }' | cut -d- -f1 | sed 's/(//' | cut -d':' -f2-)
@@ -127,8 +130,8 @@ if [ -e "debian/source/format" ] && grep -q "quilt" debian/source/format; then
 	# git archive doesn't support submodules, which is not ideal.
 	# Workaround this by creating a new worktree from the upstream tag,
 	# fetch submodules, then create the orig file
-	current_dir="${PWD}"
-	orig_dir=$(mktemp -d)
+	temp_dir=$(mktemp -d)
+	orig_dir=${temp_dir}/source
 
 	git worktree add ${orig_dir} upstream/${package_orig_version_tag}
 	cd ${orig_dir}
@@ -158,6 +161,14 @@ if [ -e "debian/source/format" ] && grep -q "quilt" debian/source/format; then
 		. ":!debian/" \
 		| cut -d/ -f3- \
 		> debian/patches/series
+
+	# Copy the new directory to ${orig_dir} as we're going to build
+	# there
+	rm -rf ${orig_dir}/debian/patches
+	cp -Rav debian/patches ${orig_dir}/debian/patches
+
+	# Finally enter in ${orig_dir}
+	cd ${orig_dir}
 fi
 
 # Finally build the package
@@ -176,3 +187,13 @@ else
 fi
 
 eval debuild "${ARGS}"
+
+# Move artifacts to the correct location if this is a non-native build
+if [ "${non_native}" == "yes" ]; then
+	find ${orig_dir}/ \
+		-maxdepth 1 \
+		-type f \
+		-regextype posix-egrep \
+		-regex "/${orig_dir}/.*\.(u?deb|tar\..*|dsc|buildinfo|changes)$" \
+		-exec mv {} ${current_dir}/.. \;
+fi
