@@ -190,10 +190,11 @@ eval debuild "${ARGS}"
 
 # Move artifacts to the correct location if this is a non-native build
 if [ "${non_native}" == "yes" ]; then
-	find ${orig_dir}/ \
+	info "Moving artifacts to correct location"
+	find ${temp_dir}/ \
 		-maxdepth 1 \
 		-type f \
 		-regextype posix-egrep \
-		-regex "/${orig_dir}/.*\.(u?deb|tar\..*|dsc|buildinfo|changes)$" \
+		-regex "/${temp_dir}/.*\.(u?deb|tar\..*|dsc|buildinfo|changes)$" \
 		-exec mv {} ${current_dir}/.. \;
 fi
