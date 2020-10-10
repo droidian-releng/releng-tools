@@ -142,7 +142,7 @@ if [ -e "debian/source/format" ] && grep -q "quilt" debian/source/format; then
 		--exclude ".git" \
 		--exclude ".gitmodules" \
 		--exclude ".gitattributes" \
-		-cJf "${current_dir}/../${package_name}_${package_orig_version}.orig.tar.xz" .
+		-cJf "${temp_dir}/${package_name}_${package_orig_version}.orig.tar.xz" .
 
 	cd "${current_dir}"
 
