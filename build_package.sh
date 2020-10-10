@@ -195,6 +195,6 @@ if [ "${non_native}" == "yes" ]; then
 		-maxdepth 1 \
 		-type f \
 		-regextype posix-egrep \
-		-regex "/${temp_dir}/.*\.(u?deb|tar\..*|dsc|buildinfo|changes)$" \
+		-regex "${temp_dir}/.*\.(u?deb|tar\..*|dsc|buildinfo|changes)$" \
 		-exec mv {} ${current_dir}/.. \;
 fi
