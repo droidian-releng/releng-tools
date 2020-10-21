@@ -170,10 +170,18 @@ if [ -e "debian/source/format" ] && grep -q "quilt" debian/source/format; then
 
 	# Copy the same directory to ${debsource_dir} where we can build
 	# source packages cleanly
-	cp -Rav ${orig_dir} ${debsource_dir}
+	if [ "${RELENG_FULL_BUILD}" == "yes" ]; then
+		cp -Rav ${orig_dir} ${debsource_dir}
+	fi
 
 	# Finally enter in ${orig_dir}
 	cd ${orig_dir}
+elif [ "${RELENG_FULL_BUILD}" == "yes" ]; then
+	# Native, but should build source
+	temp_dir=$(mktemp -d)
+	debsource_dir=${temp_dir}/debsource
+
+	cp -Rav . ${debsource_dir}
 fi
 
 # Finally build the package
@@ -182,7 +190,7 @@ info "Building package"
 BASEARGS="--no-lintian -d -sa --no-sign --jobs=$(nproc)"
 if [ "${RELENG_FULL_BUILD}" == "yes" ]; then
 	# Full build, build any,all
-	ARGS="${BASEARGS} --b"
+	ARGS="${BASEARGS} -b"
 else
 	# Build only arch-dependent packages
 	ARGS="${BASEARGS} --build=any"
