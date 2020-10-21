@@ -182,7 +182,7 @@ info "Building package"
 BASEARGS="--no-lintian -d -sa --no-sign --jobs=$(nproc)"
 if [ "${RELENG_FULL_BUILD}" == "yes" ]; then
 	# Full build, build any,all
-	ARGS="${BASEARGS} --build=any,all"
+	ARGS="${BASEARGS} --b"
 else
 	# Build only arch-dependent packages
 	ARGS="${BASEARGS} --build=any"
