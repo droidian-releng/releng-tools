@@ -132,7 +132,6 @@ if [ -e "debian/source/format" ] && grep -q "quilt" debian/source/format; then
 	# fetch submodules, then create the orig file
 	temp_dir=$(mktemp -d)
 	orig_dir=${temp_dir}/source
-	debsource_dir=${temp_dir}/debsource
 
 	git worktree add ${orig_dir} upstream/${package_orig_version_tag}
 	cd ${orig_dir}
@@ -168,46 +167,26 @@ if [ -e "debian/source/format" ] && grep -q "quilt" debian/source/format; then
 	rm -rf ${orig_dir}/debian
 	cp -Rav debian ${orig_dir}/debian
 
-	# Copy the same directory to ${debsource_dir} where we can build
-	# source packages cleanly
-	if [ "${RELENG_FULL_BUILD}" == "yes" ]; then
-		cp -Rav ${orig_dir} ${debsource_dir}
-	fi
-
 	# Finally enter in ${orig_dir}
 	cd ${orig_dir}
-elif [ "${RELENG_FULL_BUILD}" == "yes" ]; then
-	# Native, but should build source
-	temp_dir=$(mktemp -d)
-	debsource_dir=${temp_dir}/debsource
-
-	cp -Rav . ${debsource_dir}
 fi
 
 # Finally build the package
 info "Building package"
 
-BASEARGS="--no-lintian -d -sa --no-sign --jobs=$(nproc)"
+ARGS="--no-lintian -d -sa --no-sign --jobs=$(nproc)"
 if [ "${RELENG_FULL_BUILD}" == "yes" ]; then
-	# Full build, build any,all
-	ARGS="${BASEARGS} -b"
+	# Full build, build source,any,all
+	ARGS="${ARGS} -F"
+	# Note on the -F usage: debuild crashes trying to read a not existing
+	# .changes files when building source packages without supplying the
+	# old style arguments, so here we are.
 else
 	# Build only arch-dependent packages
-	ARGS="${BASEARGS} --build=any"
+	ARGS="${ARGS} --build=any"
 fi
 
 eval debuild "${ARGS}"
-
-# Now build source if we should
-if [ "${RELENG_FULL_BUILD}" == "yes" ]; then
-	ARGS="${BASEARGS} -S"
-	# Note on the -S usage: debuild crashes trying to read a not existing
-	# .changes files when building source packages without supplying the
-	# old style arguments, so here we are.
-
-	cd ${debsource_dir}
-	eval debuild "${ARGS}"
-fi
 
 # Move artifacts to the correct location if this is a non-native build
 if [ "${non_native}" == "yes" ]; then
