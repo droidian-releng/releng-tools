@@ -59,8 +59,6 @@ error() {
 #
 # Default build type is "feature-branch", per-CI logic should determine
 # which build type is by looking at available data.
-# For how this script operates, "feature-branch" and "staging" are essentially
-# the same: thus we're going to check only between "feature-branch" and "production".
 BUILD_TYPE="feature-branch"
 if [ "${HAS_JOSH_K_SEAL_OF_APPROVAL}" == "true" ]; then
 	# Travis CI
@@ -77,6 +75,11 @@ if [ "${HAS_JOSH_K_SEAL_OF_APPROVAL}" == "true" ]; then
 	else
 		# Use the branch name as the comment, append -pr if it's a pull request
 		COMMENT="${TRAVIS_BRANCH}"
+		# If the branch doesn't start with feature/..., this is going to be
+		# a staging build
+		if [[ "${TRAVIS_BRANCH}" != feature/* ]]; then
+			BUILD_TYPE="staging"
+		fi
 		if [ "${TRAVIS_EVENT_TYPE}" == "pull_request" ]; then
 			COMMENT="${COMMENT}.pull.request.test"
 		fi
@@ -91,7 +94,7 @@ case "${BUILD_TYPE}" in
 	"production")
 		ARGS="${ARGS} --tag ${TAG}"
 		;;
-	"feature-branch")
+	"feature-branch"|"staging")
 		ARGS="${ARGS} --branch ${TRAVIS_BRANCH}"
 		;;
 esac
