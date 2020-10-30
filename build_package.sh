@@ -107,6 +107,19 @@ eval releng-build-changelog "${ARGS}"
 package_info=$(head -n 1 debian/changelog)
 package_name=$(echo "${package_info}" | awk '{ print $1 }')
 
+# Add extra repositories if required
+if [ -n "${EXTRA_REPOS}" ]; then
+	[ "${BUILD_TYPE}" == "feature-branch" ] || \
+		error "EXTRA_REPOS is specified but BUILD_TYPE is not 'feature-branch'. Aborting..."
+
+	IFS="|"
+	repos=($(echo "${EXTRA_REPOS}"))
+	for repo in "${repos[@]}"; do
+			info "Enabling ${repo}"
+			echo "${repo}" >> /etc/apt/sources.list.d/releng-build-package-extra-repos.list
+	done
+fi
+
 # Refresh APT database
 info "Refreshing APT database"
 apt-get update
