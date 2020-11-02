@@ -84,6 +84,30 @@ if [ "${HAS_JOSH_K_SEAL_OF_APPROVAL}" == "true" ]; then
 			COMMENT="${COMMENT}.pull.request.test"
 		fi
 	fi
+elif [ "${DRONE}" == "true" ]; then
+	# Drone CI
+
+	CI_CONFIG="./drone.star" # TODO: support .yml and .jsonnet
+	BRANCH="${DRONE_BRANCH}"
+	COMMIT="${DRONE_COMMIT}"
+	if [ -n "${DRONE_TAG}" ]; then
+		TAG="${DRONE_TAG}"
+		# Fetch the release name from the tag, and use that as comment,
+		# appending the -production suffix
+		COMMENT=$(echo "${TAG//${RELENG_TAG_PREFIX}/}" | cut -d "/" -f1).production
+		BUILD_TYPE="production"
+	else
+		# Use the branch name as the comment, append -pr if it's a pull request
+		COMMENT="${DRONE_BRANCH}"
+		# If the branch doesn't start with feature/..., this is going to be
+		# a staging build
+		if [[ "${DRONE_BRANCH}" != feature/* ]]; then
+			BUILD_TYPE="staging"
+		fi
+		if [ -n "${DRONE_PULL_REQUEST}" ]; then
+			COMMENT="${COMMENT}.pull.request.test"
+		fi
+	fi
 fi
 
 # Build debian/changelog
