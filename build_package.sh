@@ -119,7 +119,7 @@ case "${BUILD_TYPE}" in
 		ARGS="${ARGS} --tag ${TAG}"
 		;;
 	"feature-branch"|"staging")
-		ARGS="${ARGS} --branch ${TRAVIS_BRANCH}"
+		ARGS="${ARGS} --branch ${BRANCH}"
 		;;
 esac
 # NOTE: On Travis CI we're stuck to depth 50 unless we unshallow.
