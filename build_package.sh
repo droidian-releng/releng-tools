@@ -108,6 +108,34 @@ elif [ "${DRONE}" == "true" ]; then
 			COMMENT="${COMMENT}.pull.request.test"
 		fi
 	fi
+elif [ "${AZURE_PIPELINES}" == "true" ]; then
+	# CI and AZURE_PIPELINES must be set in the pipeline yaml, they
+	# are not provided by Azure!
+
+	CI_CONFIG="./debian/azure-pipelines.yml"
+	BRANCH="${BUILD_SOURCEBRANCH/refs\/heads\//}"
+	COMMIT="${BUILD_SOURCEVERSION}"
+	if [[ "${BUILD_SOURCEBRANCH}" == refs/tags/* ]]; then
+		TAG="${BUILD_SOURCEBRANCH/refs\/tags\//}"
+		# Fetch the release name from the tag, and use that as the branch
+		# name (we can't reliably get it from azure on tags) and as a comment,
+		# appending the -production suffix
+		BRANCH=$(echo "${TAG//${RELENG_TAG_PREFIX}/}" | cut -d "/" -f1)
+		COMMENT="${BRANCH}.production"
+		BUILD_TYPE="production"
+	else
+		# Use the branch name as the comment, append -pr if it's a pull request
+		COMMENT="${BRANCH}"
+		# If the branch doesn't start with feature/..., this is going to be
+		# a staging build
+		if [[ "${BRANCH}" != feature/* ]]; then
+			BUILD_TYPE="staging"
+		fi
+		if [[ "${BUILD_SOURCEBRANCH}" == refs/pull/* ]]; then
+			# Not supported yet
+			error "Pull Requests are not supported for now with the Azure Pipelines provider"
+		fi
+	fi
 fi
 
 # Build debian/changelog
