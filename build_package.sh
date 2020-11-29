@@ -255,9 +255,9 @@ else
 	ARGS="${ARGS} --build=any"
 fi
 
-# Support --target-arch
-if [ -n "${RELENG_TARGET_ARCH}" ]; then
-	ARGS="${ARGS} --target-arch ${RELENG_TARGET_ARCH}"
+# Support --host-arch (-aARCH in debuild, see DEBBUGS#898706)
+if [ -n "${RELENG_HOST_ARCH}" ]; then
+	ARGS="${ARGS} -a${RELENG_HOST_ARCH}"
 fi
 
 eval debuild "${ARGS}"
