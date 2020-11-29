@@ -255,6 +255,11 @@ else
 	ARGS="${ARGS} --build=any"
 fi
 
+# Support --target-arch
+if [ -n "${RELENG_TARGET_ARCH}" ]; then
+	ARGS="${ARGS} --target-arch ${RELENG_TARGET_ARCH}"
+fi
+
 eval debuild "${ARGS}"
 
 # Move artifacts to the correct location if this is a non-native build
