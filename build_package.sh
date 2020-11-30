@@ -138,6 +138,9 @@ elif [ "${AZURE_PIPELINES}" == "true" ]; then
 	fi
 fi
 
+# Always fetch tags
+git fetch --tags
+
 # Build debian/changelog
 info "Building changelog from git history"
 
