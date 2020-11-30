@@ -87,7 +87,7 @@ if [ "${HAS_JOSH_K_SEAL_OF_APPROVAL}" == "true" ]; then
 elif [ "${DRONE}" == "true" ]; then
 	# Drone CI
 
-	CI_CONFIG="./drone.star" # TODO: support .yml and .jsonnet
+	CI_CONFIG="debian/drone.star"
 	BRANCH="${DRONE_BRANCH}"
 	COMMIT="${DRONE_COMMIT}"
 	if [ -n "${DRONE_TAG}" ]; then
