@@ -159,8 +159,17 @@ elif [ "${IS_CONTAINER}" == "true" ]; then
 	fi
 fi
 
-# Always fetch tags
-git fetch --tags
+# Install git-lfs if .gitattributes is present
+if [ "${IS_CONTAINER}" != "true" ]; then
+	if [ -e .gitattributes ]; then
+		git lfs install
+		git fetch origin
+		git checkout origin/${BRANCH}
+	fi
+
+	# Always fetch tags
+	git fetch --tags
+fi
 
 # Build debian/changelog
 info "Building changelog from git history"
