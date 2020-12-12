@@ -240,7 +240,7 @@ if [ -e "debian/source/format" ] && grep -q "quilt" debian/source/format; then
 	if [ "${BUILD_TYPE}" == "production" ] && [ "${DRONE}" == "true" ]; then
 		# Ensure the branch gets actually downloaded...
 		git fetch origin "+refs/heads/${BRANCH}"
-		git branch -u "origin/${BRANCH}" "${BRANCH}"
+		git checkout --track "origin/${BRANCH}"
 	fi
 
 	# git archive doesn't support submodules, which is not ideal.
