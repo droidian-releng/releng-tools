@@ -237,6 +237,12 @@ if [ -e "debian/source/format" ] && grep -q "quilt" debian/source/format; then
 
 	package_orig_version_tag="${package_orig_version/~/_}"
 
+	if [ "${BUILD_TYPE}" == "production" ] && [ "${DRONE}" == "true" ]; then
+		# Ensure the branch gets actually downloaded...
+		git fetch origin "+refs/heads/${BRANCH}"
+		git branch -u "origin/${BRANCH}" "${BRANCH}"
+	fi
+
 	# git archive doesn't support submodules, which is not ideal.
 	# Workaround this by creating a new worktree from the upstream tag,
 	# fetch submodules, then create the orig file
