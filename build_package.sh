@@ -41,7 +41,14 @@ error() {
 	exit 1
 }
 
-[ -n "${CI}" ] || error "This script must run inside a CI environment!"
+# Assume we are in 'CI' if running on a container. Also set IS_CONTAINER
+# variable and try to obtain informations on the build from there.
+if [ -z "${CI}" ] && ([ -e /.dockerenv ] || [ -e /run/.containerenv ]); then
+	CI="true"
+	IS_CONTAINER="true"
+fi
+
+[ -n "${CI}" ] || error "This script must run inside a CI environment or in an OCI container!"
 
 # Set some defaults. These can be specified in the CI build environment
 [ -n "${RELENG_TAG_PREFIX}" ] || export RELENG_TAG_PREFIX="hybris-mobian/"
@@ -136,6 +143,20 @@ elif [ "${AZURE_PIPELINES}" == "true" ]; then
 			error "Pull Requests are not supported for now with the Azure Pipelines provider"
 		fi
 	fi
+elif [ "${IS_CONTAINER}" == "true" ]; then
+	# Obtain stuff from the current directory
+
+	# Note: "production" builds are not supported at the moment.
+
+	BRANCH=$(git rev-parse --abbrev-ref HEAD)
+	COMMIT=$(git rev-parse HEAD)
+	COMMENT="${BRANCH}"
+
+	# If the branch doesn't start with feature/..., this is going to be
+	# a staging build
+	if [[ "${BRANCH}" != feature/* ]]; then
+		BUILD_TYPE="staging"
+	fi
 fi
 
 # Always fetch tags
@@ -155,6 +176,14 @@ case "${BUILD_TYPE}" in
 esac
 # NOTE: On Travis CI we're stuck to depth 50 unless we unshallow.
 #git fetch --unshallow
+
+if [ "${IS_CONTAINER}" == "true" ]; then
+	# Handle debian/changelog. First try restoring it from git...
+	git checkout -- debian/changelog &> /dev/null || \
+		# Otherwise, remove it altogether
+		rm -f debian/changelog
+fi
+
 eval releng-build-changelog "${ARGS}"
 
 # TODO? Build arch checks?
