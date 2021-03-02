@@ -235,7 +235,7 @@ if [ -e "debian/source/format" ] && grep -q "quilt" debian/source/format; then
 
 	package_orig_version=$(echo "${package_info}" | awk '{ print $2 }' | cut -d- -f1 | sed 's/(//' | cut -d':' -f2-)
 
-	package_orig_version_tag="${package_orig_version/~/_}"
+	package_orig_version_tag="${package_orig_version/\~/_}"
 
 	if [ "${BUILD_TYPE}" == "production" ] && [ "${DRONE}" == "true" ]; then
 		# Ensure the branch gets actually downloaded...
