@@ -158,6 +158,43 @@ class SlimPackage:
 			if tag.name.startswith(self.tag_prefix) or tag.name.startswith("upstream/")
 		}
 
+	def get_version_from_non_native_tags(self):
+		"""
+		Returns a suitable version for non-native packages, looking
+		at the nearest tags and taking in account eventual epochs.
+		"""
+
+		tags = [
+			self.tags[k.hexsha]
+			for k in self.git_repository.iter_commits(rev=self.commit_hash)
+			if k.hexsha in self.tags
+		]
+
+		latest_upstream = None
+		for tag in tags:
+			if tag.startswith(self.tag_prefix):
+				# Explicit version, return
+				sanitized = tag.replace(self.tag_prefix, "").split("/")[-1]
+				if latest_upstream is None:
+					return sanitized
+				else:
+					# Latest upstream set (see below).
+					# Extract epoch, if any, then return the new version
+					if "%" in sanitized:
+						return "%s:%s" % (sanitized.split("%")[0], latest_upstream)
+					else:
+						return latest_upstream
+			elif tag.startswith("upstream/"):
+				# Upstream tag. If we're here, this is probably the nearest.
+				# We can't go ahead since we need to determine if there
+				# is an epoch in the debian version.
+				# Set latest_upstream so that it can be handled on
+				# the next tag_prefix check.
+				latest_upstream = tag.replace("upstream/","")
+				continue
+
+		return None
+
 	def get_version_from_changelog(self):
 		"""
 		Returns the latest version from debian/changelog, or None
@@ -254,16 +291,7 @@ class SlimPackage:
 			#  - If the nearest tag starts with the tag_prefix, this is
 			#    simply another debian revision, so the old revision
 			#    is already specified.
-			lambda: none_on_exception(
-				lambda x, y, z: [
-					self.tags[k.hexsha]
-					for k in x.iter_commits(rev=z)
-					if k.hexsha in self.tags
-				][0].replace("upstream/","").replace(y,"").split("/")[-1],
-				self.git_repository,
-				self.tag_prefix,
-				self.commit_hash
-			) if not self.is_native else None,
+			lambda: none_on_exception(self.get_version_from_non_native_tags) if not self.is_native else None,
 
 			# Get the nearest tag starting with tag_prefix using git describe
 			lambda: none_on_exception(
