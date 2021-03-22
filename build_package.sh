@@ -51,7 +51,7 @@ fi
 [ -n "${CI}" ] || error "This script must run inside a CI environment or in an OCI container!"
 
 # Set some defaults. These can be specified in the CI build environment
-[ -n "${RELENG_TAG_PREFIX}" ] || export RELENG_TAG_PREFIX="hybris-mobian/"
+[ -n "${RELENG_TAG_PREFIX}" ] || export RELENG_TAG_PREFIX="droidian/"
 [ -n "${RELENG_BRANCH_PREFIX}" ] || export RELENG_BRANCH_PREFIX="feature/"
 [ -n "${RELENG_FULL_BUILD}" ] || export RELENG_FULL_BUILD="no"
 

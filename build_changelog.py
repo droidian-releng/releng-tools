@@ -113,7 +113,7 @@ class SlimPackage:
 		git_repository,
 		commit_hash,
 		tag=None,
-		tag_prefix="hybris-mobian/",
+		tag_prefix="droidian/",
 		branch=None,
 		branch_prefix="feature/",
 		comment="release"
@@ -126,7 +126,7 @@ class SlimPackage:
 		the commit you want to build)
 		:param: tag: the tag specifying the version, or None
 		:param: tag_prefix: the tag prefix used to find suitable tags.
-		Defaults to `hybris-mobian/`.
+		Defaults to `droidian/`.
 		:param: branch: the branch we're building on, or None
 		:param: branch_prefix: the branch prefix used to define feature branches.
 		Defaults to `feature/`
@@ -510,8 +510,8 @@ parser.add_argument(
 parser.add_argument(
 	"--tag-prefix",
 	type=str,
-	default="hybris-mobian/",
-	help="the prefix of the tag supplied with --tag. Defaults to hybris-mobian/"
+	default="droidian/",
+	help="the prefix of the tag supplied with --tag. Defaults to droidian/"
 )
 parser.add_argument(
 	"--branch",
