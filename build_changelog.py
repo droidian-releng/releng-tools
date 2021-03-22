@@ -95,6 +95,17 @@ def tzinfo_from_offset(offset):
 
 	return datetime.timezone(sign * datetime.timedelta(hours=hours, minutes=minutes))
 
+def multiple_replace(string, matches, replacement):
+	"""
+	Replacement every occourence of the supplied iterable `matches`
+	in `string` with replacement (another string).
+	"""
+
+	for match in matches:
+		string = string.replace(match, replacement)
+
+	return string
+
 class SlimPackage:
 
 	"""
@@ -113,7 +124,7 @@ class SlimPackage:
 		git_repository,
 		commit_hash,
 		tag=None,
-		tag_prefix="droidian/",
+		tag_prefixes=("droidian/",),
 		branch=None,
 		branch_prefix="feature/",
 		comment="release"
@@ -125,8 +136,8 @@ class SlimPackage:
 		:param: commit_hash: the upmost commit hash to look at (most probably
 		the commit you want to build)
 		:param: tag: the tag specifying the version, or None
-		:param: tag_prefix: the tag prefix used to find suitable tags.
-		Defaults to `droidian/`.
+		:param: tag_prefixes: the tag prefixes used to find suitable tags, as a tuple.
+		Defaults to `("droidian/",)`.
 		:param: branch: the branch we're building on, or None
 		:param: branch_prefix: the branch prefix used to define feature branches.
 		Defaults to `feature/`
@@ -142,7 +153,7 @@ class SlimPackage:
 		self.git_repository = git_repository
 		self.commit_hash = commit_hash
 		self.tag = tag
-		self.tag_prefix = tag_prefix
+		self.tag_prefixes = tag_prefixes
 		self.branch = branch
 		self.branch_prefix = branch_prefix
 		self.comment = slugify(comment.replace(self.branch_prefix, ""))
@@ -155,7 +166,7 @@ class SlimPackage:
 		self.tags = {
 			tag.commit.hexsha : tag.name
 			for tag in self.git_repository.tags
-			if tag.name.startswith(self.tag_prefix) or tag.name.startswith("upstream/")
+			if tag.name.startswith(self.tag_prefixes) or tag.name.startswith("upstream/")
 		}
 
 	def get_version_from_non_native_tags(self):
@@ -172,9 +183,9 @@ class SlimPackage:
 
 		latest_upstream = None
 		for tag in tags:
-			if tag.startswith(self.tag_prefix):
+			if tag.startswith(self.tag_prefixes):
 				# Explicit version, return
-				sanitized = tag.replace(self.tag_prefix, "").split("/")[-1]
+				sanitized = multiple_replace(tag, self.tag_prefixes, "").split("/")[-1]
 				if latest_upstream is None:
 					return sanitized
 				else:
@@ -189,7 +200,7 @@ class SlimPackage:
 				# We can't go ahead since we need to determine if there
 				# is an epoch in the debian version.
 				# Set latest_upstream so that it can be handled on
-				# the next tag_prefix check.
+				# the next tag_prefixes check.
 				latest_upstream = tag.replace("upstream/","")
 				continue
 
@@ -280,24 +291,24 @@ class SlimPackage:
 		_starting_version_strategies = [
 			# If we have a tag (i.e. production builds), use directly that,
 			# as the version is specified there.
-			lambda: self.tag.replace(self.tag_prefix, "").split("/")[-1] if self.tag is not None else None,
+			lambda: multiple_replace(self.tag, self.tag_prefixes, "").split("/")[-1] if self.tag is not None else None,
 
 			# On non-native packages, search for the nearest tag between
-			# those starting with upstream/ and tag_prefix (these are
+			# those starting with upstream/ and tag_prefixes (these are
 			# already filtered in self.tag in this class' __init__).
 			#  - If the nearest tag starts with upstream/, this is a version
 			#    bump so the version_template must be changed accordingly
 			#    (see below)
-			#  - If the nearest tag starts with the tag_prefix, this is
+			#  - If the nearest tag starts with the tag_prefixes, this is
 			#    simply another debian revision, so the old revision
 			#    is already specified.
 			lambda: none_on_exception(self.get_version_from_non_native_tags) if not self.is_native else None,
 
-			# Get the nearest tag starting with tag_prefix using git describe
+			# Get the nearest tag starting with tag_prefixes using git describe
 			lambda: none_on_exception(
-				lambda x, y: x.git.describe("--tags", "--always", "--abbrev=0", "--match=%s*" % y).replace(y,"").split("/")[1],
+				lambda x, y: multiple_replace(x.git.describe("--tags", "--always", "--abbrev=0", *["--match=%s*" % z for z in y]),y,"").split("/")[1],
 				self.git_repository,
-				self.tag_prefix
+				self.tag_prefixes
 			),
 
 			# Open an eventual debian/changelog and try to pick up the
@@ -356,7 +367,7 @@ class SlimPackage:
 		"""
 
 		if not self._release and self.tag is not None:
-			self._release = self.tag.replace(self.tag_prefix, "").split("/")[0]
+			self._release = multiple_replace(self.tag, self.tag_prefixes, "").split("/")[0]
 		elif not self._release and self.branch is not None:
 			self._release = self.branch.replace(self.branch_prefix, "").split("/")[0]
 		elif not self._release:
@@ -371,9 +382,9 @@ class SlimPackage:
 
 		# Keep track of every tag with our prefix
 		tags = {
-			hexsha : tag_name.replace(self.tag_prefix, "")
+			hexsha : multiple_replace(tag_name, self.tag_prefixes, "")
 			for hexsha, tag_name in self.tags.items()
-			if tag_name.startswith(self.tag_prefix)
+			if tag_name.startswith(self.tag_prefixes)
 		}
 
 		# Use the current release/version pair as the top version
@@ -510,8 +521,9 @@ parser.add_argument(
 parser.add_argument(
 	"--tag-prefix",
 	type=str,
-	default="droidian/",
-	help="the prefix of the tag supplied with --tag. Defaults to droidian/"
+	nargs="+",
+	default=["droidian/", "hybris-mobian/"],
+	help="the prefix of the tag supplied with --tag. Defaults to droidian/."
 )
 parser.add_argument(
 	"--branch",
@@ -546,7 +558,7 @@ if __name__ == "__main__":
 		repository,
 		commit_hash=args.commit or repository.head.commit.hexsha,
 		tag=args.tag,
-		tag_prefix=args.tag_prefix,
+		tag_prefixes=tuple(args.tag_prefix),
 		branch=args.branch or (None if args.tag else repository.active_branch.name),
 		branch_prefix=args.branch_prefix,
 		comment=args.comment
