@@ -52,6 +52,7 @@ fi
 
 # Set some defaults. These can be specified in the CI build environment
 [ -n "${RELENG_TAG_PREFIX}" ] || export RELENG_TAG_PREFIX="droidian/"
+[ -n "${RELENG_LEGACY_TAG_PREFIX}" ] || export RELENG_LEGACY_TAG_PREFIX="hybris-mobian/"
 [ -n "${RELENG_BRANCH_PREFIX}" ] || export RELENG_BRANCH_PREFIX="feature/"
 [ -n "${RELENG_FULL_BUILD}" ] || export RELENG_FULL_BUILD="no"
 
@@ -174,7 +175,7 @@ fi
 # Build debian/changelog
 info "Building changelog from git history"
 
-ARGS="--commit ${COMMIT} --comment ${COMMENT} --tag-prefix ${RELENG_TAG_PREFIX} --branch-prefix ${RELENG_BRANCH_PREFIX}"
+ARGS="--commit ${COMMIT} --comment ${COMMENT} --tag-prefix ${RELENG_TAG_PREFIX} ${RELENG_LEGACY_TAG_PREFIX} --branch-prefix ${RELENG_BRANCH_PREFIX}"
 case "${BUILD_TYPE}" in
 	"production")
 		ARGS="${ARGS} --tag ${TAG}"
