@@ -81,7 +81,7 @@ DRONE_ARCH_MAPPING = {
 
 DOCKER_IMAGE = "droidian/build-essential"
 
-TAG_PREFIX = "droidian/"
+TAG_PREFIX = "hybris-mobian/"
 
 FEATURE_BRANCH_PREFIX = "feature/"
 
