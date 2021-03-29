@@ -204,6 +204,11 @@ class SlimPackage:
 				latest_upstream = tag.replace("upstream/","")
 				continue
 
+		if latest_upstream is not None:
+			# Handle cases where upstream/ is present but a downstream
+			# tag isn't
+			return latest_upstream
+
 		return None
 
 	def get_version_from_changelog(self):
