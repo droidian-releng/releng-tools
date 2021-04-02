@@ -195,7 +195,7 @@ class SlimPackage:
 						return "%s:%s" % (sanitized.split("%")[0], latest_upstream)
 					else:
 						return latest_upstream
-			elif tag.startswith("upstream/"):
+			elif tag.startswith("upstream/") and latest_upstream is None:
 				# Upstream tag. If we're here, this is probably the nearest.
 				# We can't go ahead since we need to determine if there
 				# is an epoch in the debian version.
