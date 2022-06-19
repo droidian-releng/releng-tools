@@ -153,6 +153,8 @@ elif [ "${IS_CONTAINER}" == "true" ]; then
 	COMMIT=$(git rev-parse HEAD)
 	COMMENT="${BRANCH}"
 
+	FORCE_ALLOW_EXTRA_REPOS="yes"
+
 	# If the branch doesn't start with feature/..., this is going to be
 	# a staging build
 	if [[ "${BRANCH}" != feature/* ]]; then
@@ -203,8 +205,9 @@ package_name=$(echo "${package_info}" | awk '{ print $1 }')
 
 # Add extra repositories if required
 if [ -n "${EXTRA_REPOS}" ]; then
-	[ "${BUILD_TYPE}" == "feature-branch" ] || \
+	if [ "${FORCE_ALLOW_EXTRA_REPOS}" != "yes" ] && [ "${BUILD_TYPE}" != "feature-branch" ]; then
 		error "EXTRA_REPOS is specified but BUILD_TYPE is not 'feature-branch'. Aborting..."
+	fi
 
 	IFS="|"
 	repos=($(echo "${EXTRA_REPOS}"))
