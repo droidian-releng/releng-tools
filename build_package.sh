@@ -255,8 +255,7 @@ if [ -e "debian/source/format" ] && grep -q "quilt" debian/source/format; then
 
 	git worktree add ${orig_dir} upstream/${package_orig_version_tag}
 	cd ${orig_dir}
-	git submodule init
-	git submodule update
+	git submodule update --init --recursive
 
 	# Limitation of this approach is that we HAVE to check out eventual
 	# new submodules :(
