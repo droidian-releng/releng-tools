@@ -301,8 +301,7 @@ if [ -e "debian/source/format" ] && grep -q "quilt" debian/source/format; then
 	# Finally enter in ${orig_dir}
 	cd ${orig_dir}
 else
-	git submodule init
-	git submodule update --depth 1
+	git submodule update --init --recursive --depth 1
 fi
 
 # Finally build the package
