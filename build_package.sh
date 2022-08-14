@@ -268,10 +268,10 @@ if [ -e "debian/source/format" ] && grep -q "quilt" debian/source/format; then
 		git submodule update
 	fi
 	tar \
-		--exclude "debian" \
-		--exclude ".git" \
-		--exclude ".gitmodules" \
-		--exclude ".gitattributes" \
+		--exclude "./debian" \
+		--exclude "./.git" \
+		--exclude "./.gitmodules" \
+		--exclude "./.gitattributes" \
 		-cJf "${temp_dir}/${package_name}_${package_orig_version}.orig.tar.xz" .
 
 	cd "${current_dir}"
