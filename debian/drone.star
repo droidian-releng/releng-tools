@@ -168,6 +168,8 @@ def debian_package_build(suite, architecture, full_build=True, extra_repos=[], h
 				"commands" : [
 					"ln -s /buildd /tmp/buildd-results",
 					"cd /tmp/buildd-results",
+					"sed -i 's|C14B92A04D37C9FF|9EE10B5D42CBD658C43BB6FA2447CDDE0C1F1CD1|g' /usr/local/bin/repo-droidian-sign.sh",
+					"cat /usr/local/bin/repo-droidian-sign.sh",
 					"repo-droidian-sign.sh",
 					"repo-droidian-deploy.sh",
 				],
