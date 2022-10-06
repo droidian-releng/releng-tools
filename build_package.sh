@@ -144,6 +144,30 @@ elif [ "${AZURE_PIPELINES}" == "true" ]; then
 			error "Pull Requests are not supported for now with the Azure Pipelines provider"
 		fi
 	fi
+elif [ "${CIRCLECI}" == "true" ]; then
+	# CircleCI
+
+	CI_CONFIG=".circleci/config.yml"
+	BRANCH="${CIRCLE_BRANCH}"
+	COMMIT="${CIRCLE_SHA1}"
+	if [ -n "${CIRCLE_TAG}" ]; then
+		TAG="${CIRCLE_TAG}"
+		# Fetch the release name from the tag, and use that as comment,
+		# appending the -production suffix
+		COMMENT=$(echo "${TAG//${RELENG_TAG_PREFIX}/}" | cut -d "/" -f1).production
+		BUILD_TYPE="production"
+	else
+		# Use the branch name as the comment, append -pr if it's a pull request
+		COMMENT="${CIRCLE_BRANCH}"
+		# If the branch doesn't start with feature/..., this is going to be
+		# a staging build
+		if [[ "${CIRCLE_BRANCH}" != feature/* ]]; then
+			BUILD_TYPE="staging"
+		fi
+		if [ -n "${CIRCLE_PULL_REQUEST}" ]; then
+			COMMENT="${COMMENT}.pull.request.test"
+		fi
+	fi
 elif [ "${IS_CONTAINER}" == "true" ]; then
 	# Obtain stuff from the current directory
 
