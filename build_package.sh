@@ -308,6 +308,18 @@ if [ -e "debian/source/format" ] && grep -q "quilt" debian/source/format; then
 
 	mkdir -p debian/patches
 
+	# dpkg-source complains if a file referenced by a symlink
+	# is changed in our branch. Replace those symlinks with the actual file
+	for dir in "${orig_dir}" "${PWD}"; do
+		for link in $(find -L ${dir} -path ${dir}/debian -prune -false -o -xtype l -print); do
+			target="$(readlink -f ${link})"
+			if [[ ${target} == ${dir}/* ]]; then
+				unlink "${link}"
+				cp "${target}" "${link}"
+			fi
+		done
+	done
+
 	# Entirely replace the series file with our patches, we don't support
 	# an hybrid quilt+git configuration
 	git diff upstream/${package_orig_version_tag}..${BRANCH} \
