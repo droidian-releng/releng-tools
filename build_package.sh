@@ -291,6 +291,19 @@ if [ -e "debian/source/format" ] && grep -q "quilt" debian/source/format; then
 		git submodule sync
 		git submodule update
 	fi
+
+	# dpkg-source complains if a file referenced by a symlink
+	# is changed in our branch. Replace those symlinks with the actual file
+	for dir in "${orig_dir}" "${current_dir}"; do
+		for link in $(find -L ${dir} -path ${dir}/debian -prune -false -o -xtype l -print); do
+			target="$(readlink -f ${link} || true)"
+			if [ -n "${target}" ] && [[ ${target} == ${dir}/* ]]; then
+				unlink "${link}"
+				cp "${target}" "${link}"
+			fi
+		done
+	done
+
 	tar \
 		--exclude "./debian" \
 		--exclude "./.git" \
@@ -307,18 +320,6 @@ if [ -e "debian/source/format" ] && grep -q "quilt" debian/source/format; then
 	git commit -m "temporary commit"
 
 	mkdir -p debian/patches
-
-	# dpkg-source complains if a file referenced by a symlink
-	# is changed in our branch. Replace those symlinks with the actual file
-	for dir in "${orig_dir}" "${PWD}"; do
-		for link in $(find -L ${dir} -path ${dir}/debian -prune -false -o -xtype l -print); do
-			target="$(readlink -f ${link} || true)"
-			if [ -n "${target}" ] && [[ ${target} == ${dir}/* ]]; then
-				unlink "${link}"
-				cp "${target}" "${link}"
-			fi
-		done
-	done
 
 	# Entirely replace the series file with our patches, we don't support
 	# an hybrid quilt+git configuration
