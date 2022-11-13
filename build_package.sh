@@ -312,8 +312,8 @@ if [ -e "debian/source/format" ] && grep -q "quilt" debian/source/format; then
 	# is changed in our branch. Replace those symlinks with the actual file
 	for dir in "${orig_dir}" "${PWD}"; do
 		for link in $(find -L ${dir} -path ${dir}/debian -prune -false -o -xtype l -print); do
-			target="$(readlink -f ${link})"
-			if [[ ${target} == ${dir}/* ]]; then
+			target="$(readlink -f ${link} || true)"
+			if [ -n "${target}" ] && [[ ${target} == ${dir}/* ]]; then
 				unlink "${link}"
 				cp "${target}" "${link}"
 			fi
