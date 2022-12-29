@@ -56,6 +56,9 @@ fi
 [ -n "${RELENG_BRANCH_PREFIX}" ] || export RELENG_BRANCH_PREFIX="feature/"
 [ -n "${RELENG_FULL_BUILD}" ] || export RELENG_FULL_BUILD="no"
 
+# Newer git releases complain about "dubious ownership"
+git config --global --add safe.directory ${PWD} || true
+
 # There are three different "build types" that match the destination
 # repository
 # - feature-branch: this is meant only for testing purposes, a new
