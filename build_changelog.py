@@ -2,7 +2,7 @@
 #
 # build_changelog - Builds a debian/changelog file from a git commit
 # history
-# Copyright (C) 2020 Eugenio "g7" Paolantonio <me@medesimo.eu>
+# Copyright (C) 2020-2023 Eugenio "g7" Paolantonio <me@medesimo.eu>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,8 @@ import email.utils
 import argparse
 
 from collections import OrderedDict, namedtuple
+
+CURRENT_ROLLING_SUITE = "trixie"
 
 changelog_entry = namedtuple("ChangelogEntry", ["author", "mail", "contents", "date"])
 
@@ -127,6 +129,8 @@ class SlimPackage:
 		tag_prefixes=("droidian/",),
 		branch=None,
 		branch_prefix="feature/",
+		rolling_release=None,
+		rolling_release_replacement=None,
 		comment="release"
 	):
 		"""
@@ -141,6 +145,9 @@ class SlimPackage:
 		:param: branch: the branch we're building on, or None
 		:param: branch_prefix: the branch prefix used to define feature branches.
 		Defaults to `feature/`
+		:param: rolling_release: the branch used for rolling releases
+		:param: rolling_release_replacement: the actual release to be used when on
+		rolling_release
 		:param: comment: a comment that will be included in the package version,
 		usually the branch slug. Defaults to 'release'
 
@@ -156,6 +163,8 @@ class SlimPackage:
 		self.tag_prefixes = tag_prefixes
 		self.branch = branch
 		self.branch_prefix = branch_prefix
+		self.rolling_release = rolling_release
+		self.rolling_release_replacement = rolling_release_replacement
 		self.comment = slugify(comment.replace(self.branch_prefix, ""))
 
 		self._name = None
@@ -378,6 +387,12 @@ class SlimPackage:
 		elif not self._release:
 			raise Exception("At least one between tag and branch must be specified")
 
+		if \
+			self.rolling_release is not None and \
+			self.rolling_release_replacement is not None and \
+			self._release == self.rolling_release:
+				self._release = self.rolling_release_replacement
+
 		return self._release
 
 	def iter_changelog(self):
@@ -542,6 +557,18 @@ parser.add_argument(
 	help="the prefix of the branch supplied with --branch. Defaults to feature/"
 )
 parser.add_argument(
+	"--rolling-release",
+	type=str,
+	default="droidian",
+	help="the branch used for rolling releases. Defaults to droidian"
+)
+parser.add_argument(
+	"--rolling-release-replacement",
+	type=str,
+	default=CURRENT_ROLLING_SUITE,
+	help="the actual release that is going to be used on rolling releases. Defaults to %s" % CURRENT_ROLLING_SUITE
+)
+parser.add_argument(
 	"--comment",
 	type=str,
 	default="release",
@@ -566,6 +593,8 @@ if __name__ == "__main__":
 		tag_prefixes=tuple(args.tag_prefix),
 		branch=args.branch or (None if args.tag else repository.active_branch.name),
 		branch_prefix=args.branch_prefix,
+		rolling_release=args.rolling_release,
+		rolling_release_replacement=args.rolling_release_replacement,
 		comment=args.comment
 	)
 
