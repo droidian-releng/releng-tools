@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: releng-tools
-Source: https://github.com/hybris-mobian-releng/releng-tools
+Source: https://github.com/droidian-releng/releng-tools
 
 Files: *
 Copyright: 2020 Eugenio "g7" Paolantonio <me@medesimo.eu>
