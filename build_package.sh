@@ -212,7 +212,7 @@ case "${BUILD_TYPE}" in
 		# This is only needed for bootstraps, and it might be removed at a later date
 		suite=$(echo "${TAG//${RELENG_TAG_PREFIX}/}" | cut -d "/" -f1)
 		if [ "${suite}" == "next" ]; then
-			ARGS="--rolling-release next"
+			ARGS="${ARGS} --rolling-release next"
 		fi
 		;;
 	"feature-branch"|"staging")
