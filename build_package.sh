@@ -208,6 +208,12 @@ ARGS="--commit ${COMMIT} --comment ${COMMENT} --tag-prefix ${RELENG_TAG_PREFIX} 
 case "${BUILD_TYPE}" in
 	"production")
 		ARGS="${ARGS} --tag ${TAG}"
+		# 2024-05: Droidian switched to snapshots, and we have to handle that...
+		# This is only needed for bootstraps, and it might be removed at a later date
+		suite=$(echo "${TAG//${RELENG_TAG_PREFIX}/}" | cut -d "/" -f1)
+		if [ "${suite}" == "next" ]; then
+			ARGS="--rolling-release next"
+		fi
 		;;
 	"feature-branch"|"staging")
 		ARGS="${ARGS} --branch ${BRANCH}"
