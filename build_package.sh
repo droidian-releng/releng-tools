@@ -215,7 +215,10 @@ case "${BUILD_TYPE}" in
 			ARGS="${ARGS} --rolling-release next"
 		fi
 		;;
-	"feature-branch"|"staging")
+	"feature-branch")
+		ARGS="${ARGS} --branch ${BRANCH} --rolling-release next"
+		;;
+	"staging")
 		ARGS="${ARGS} --branch ${BRANCH}"
 		;;
 esac
