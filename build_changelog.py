@@ -91,7 +91,7 @@ def tzinfo_from_offset(offset):
 	stackoverflow: https://stackoverflow.com/a/37097784
 	"""
 
-	sign, hours, minutes = re.match('([+\-]?)(\d{2})(\d{2})', str(offset)).groups()
+	sign, hours, minutes = re.match('([+\\-]?)(\\d{2})(\\d{2})', str(offset)).groups()
 	sign = -1 if sign == '-' else 1
 	hours, minutes = int(hours), int(minutes)
 
