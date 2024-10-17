@@ -178,6 +178,13 @@ class SlimPackage:
 			if tag.name.startswith(self.tag_prefixes) or tag.name.startswith("upstream/")
 		}
 
+		hint_file = os.path.join(self.git_repository.working_dir, "debian/droidian-version-hint")
+		if os.path.exists(hint_file):
+			with open(hint_file, "r") as f:
+				self.version_hint = f.read().strip() or None
+		else:
+			self.version_hint = None
+
 	def get_version_from_non_native_tags(self):
 		"""
 		Returns a suitable version for non-native packages, looking
@@ -188,11 +195,11 @@ class SlimPackage:
 			self.tags[k.hexsha]
 			for k in self.git_repository.iter_commits(rev=self.commit_hash)
 			if k.hexsha in self.tags
-		]
+		] + [self.version_hint]
 
 		latest_upstream = None
 		for tag in tags:
-			if tag.startswith(self.tag_prefixes):
+			if tag and tag.startswith(self.tag_prefixes):
 				# Explicit version, return
 				sanitized = multiple_replace(tag, self.tag_prefixes, "").split("/")[-1]
 				if latest_upstream is None:
@@ -204,7 +211,7 @@ class SlimPackage:
 						return "%s:%s" % (sanitized.split("%")[0], latest_upstream)
 					else:
 						return latest_upstream
-			elif tag.startswith("upstream/") and latest_upstream is None:
+			elif tag and tag.startswith("upstream/") and latest_upstream is None:
 				# Upstream tag. If we're here, this is probably the nearest.
 				# We can't go ahead since we need to determine if there
 				# is an epoch in the debian version.
