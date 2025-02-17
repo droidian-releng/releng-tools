@@ -230,7 +230,7 @@ case "${BUILD_TYPE}" in
 			ARGS="${ARGS} --rolling-release next"
 		fi
 		;;
-	"feature-branch")
+	"feature-branch"|"group")
 		ARGS="${ARGS} --branch ${BRANCH} --rolling-release next"
 		;;
 	"staging")
