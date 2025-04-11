@@ -256,7 +256,7 @@ package_name=$(echo "${package_info}" | awk '{ print $1 }')
 
 # Add extra repositories if required
 if [ -n "${EXTRA_REPOS}" ]; then
-	if [ "${FORCE_ALLOW_EXTRA_REPOS}" != "yes" ] && [ "${BUILD_TYPE}" != "feature-branch" ]; then
+	if [ "${FORCE_ALLOW_EXTRA_REPOS}" != "yes" ] && [ "${BUILD_TYPE}" != "feature-branch" ] && [ "${BUILD_TYPE}" != "group" ]; then
 		error "EXTRA_REPOS is specified but BUILD_TYPE is not 'feature-branch'. Aborting..."
 	fi
 
