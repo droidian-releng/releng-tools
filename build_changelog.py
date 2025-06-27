@@ -2,7 +2,7 @@
 #
 # build_changelog - Builds a debian/changelog file from a git commit
 # history
-# Copyright (C) 2020-2023 Eugenio "g7" Paolantonio <me@medesimo.eu>
+# Copyright (C) 2020-2025 Eugenio "g7" Paolantonio <me@medesimo.eu>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -406,7 +406,7 @@ class SlimPackage:
 
 		return self._release
 
-	def iter_changelog(self):
+	def iter_changelog(self, compact=False):
 		"""
 		Returns a formatted changelog
 		"""
@@ -431,7 +431,7 @@ class SlimPackage:
 			# but we're unable to access it.
 			# Use this information to determine if we should stop
 			# here
-			if commit.parents:
+			if commit.parents and not compact:
 				try:
 					commit.parents[0].parents
 				except ValueError:
@@ -585,6 +585,11 @@ parser.add_argument(
 	default="release",
 	help="a slugified comment that is set as version suffix. Defaults to release"
 )
+parser.add_argument(
+	"--compact",
+	action="store_true",
+	help="build a compact changelog (only a single entry)"
+)
 
 if __name__ == "__main__":
 	args = parser.parse_args()
@@ -616,7 +621,7 @@ if __name__ == "__main__":
 	print("I: Resulting version is %s" % version)
 
 	with open("debian/changelog", "w") as f:
-		for entry in pkg.iter_changelog():
+		for entry in pkg.iter_changelog(compact=args.compact):
 			f.write(entry)
 
 

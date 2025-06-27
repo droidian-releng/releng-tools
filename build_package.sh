@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # releng-build-package - builds a Debian package (to be used in CI systems)
-# Copyright (C) 2020 Eugenio "g7" Paolantonio <me@medesimo.eu>
+# Copyright (C) 2020-2025 Eugenio "g7" Paolantonio <me@medesimo.eu>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -239,6 +239,11 @@ case "${BUILD_TYPE}" in
 esac
 # NOTE: On Travis CI we're stuck to depth 50 unless we unshallow.
 #git fetch --unshallow
+
+# Enable compact changelogs, default on containers
+if [ "${IS_CONTAINER}" == "true" ] || grep -q "XS-Droidian-Compact-Changelog: yes" debian/control; then
+	ARGS="${ARGS} --compact"
+fi
 
 if [ "${IS_CONTAINER}" == "true" ]; then
 	# Handle debian/changelog. First try restoring it from git...
