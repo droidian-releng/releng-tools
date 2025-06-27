@@ -1,6 +1,6 @@
 #!/bin/sh
 
-[ -z "${DROIDIAN_VCS_URL}" ] || DROIDIAN_EXTRA_ARGS="-DX-Droidian-Vcs-Url=\"${DROIDIAN_VCS_URL}\""
-[ -z "${DROIDIAN_VCS_REV}" ] || DROIDIAN_EXTRA_ARGS="${DROIDIAN_EXTRA_ARGS} -DX-Droidian-Vcs-Revision=\"${DROIDIAN_VCS_REV}\""
+[ -z "${DROIDIAN_VCS_URL}" ] || DROIDIAN_EXTRA_ARGS="-DX-Droidian-Vcs-Url=${DROIDIAN_VCS_URL}"
+[ -z "${DROIDIAN_VCS_REV}" ] || DROIDIAN_EXTRA_ARGS="${DROIDIAN_EXTRA_ARGS} -DX-Droidian-Vcs-Revision=${DROIDIAN_VCS_REV}"
 
 exec /usr/bin/dpkg-gencontrol "$@" ${DROIDIAN_EXTRA_ARGS}
