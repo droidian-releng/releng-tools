@@ -234,7 +234,11 @@ case "${BUILD_TYPE}" in
 		ARGS="${ARGS} --branch ${BRANCH} --rolling-release next"
 		;;
 	"staging")
-		ARGS="${ARGS} --branch ${BRANCH}"
+		if [ -n "${RELENG_TAG_FULL}" ]; then
+			ARGS="${ARGS} --tag ${RELENG_TAG_FULL}"
+		else
+			ARGS="${ARGS} --branch ${BRANCH}"
+		fi
 		;;
 esac
 # NOTE: On Travis CI we're stuck to depth 50 unless we unshallow.
